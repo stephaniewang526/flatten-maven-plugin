@@ -239,6 +239,15 @@ public class FlattenMojo
     private Boolean embedBuildProfileDependencies;
 
     /**
+     * Build plugins with property <extensions> set to <code>true</code> will automatically be included
+     * in the flattened pom. However, this may not be desirable in certain cases. When setting this parameter
+     * to <code>true</code>, all build plugins, including ones with <extensions> set to <code>true</code>,
+     * will be stripped from the flattened pom.
+     */
+    @Parameter( defaultValue = "false" )
+    private Boolean excludeBuildPlugins;
+
+    /**
      * The {@link MojoExecution} used to get access to the raw configuration of {@link #pomElements} as empty tags are
      * mapped to null.
      */
@@ -638,7 +647,7 @@ public class FlattenMojo
         {
             for ( Plugin plugin : build.getPlugins() )
             {
-                if ( plugin.isExtensions() )
+                if ( !isExcludeBuildPlugins() && plugin.isExtensions() )
                 {
                     Build cleanBuild = cleanPom.getBuild();
                     if ( cleanBuild == null )
@@ -932,6 +941,14 @@ public class FlattenMojo
     {
 
         return this.embedBuildProfileDependencies.booleanValue();
+    }
+
+    /**
+     * @return <code>true</code> if all build plugins should be stripped from the flattened POM.
+     * Otherwise if <code>false</code>, build plugins with <extensions> set to <code>true</code> will be included.
+     */
+    public boolean isExcludeBuildPlugins(){
+        return this.excludeBuildPlugins.booleanValue();
     }
 
     /**
